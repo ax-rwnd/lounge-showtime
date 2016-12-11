@@ -22,8 +22,10 @@ def streamogg(song):
 @app.route('/upload', methods=['POST'])
 def uploadfile():
 	""" Accept file from outside source. """
+
+	# grab auth info
 	user = request.files['username'].stream.read(32)
-	session = request.files['session'].stream.read(64)
+	session = request.files['session'].stream.read(60)
 
 	status = send_post(cfg, '/api/auth', {'username':user,'session':session})
 	if status['status'] == u'AUTH_OK':
@@ -32,8 +34,16 @@ def uploadfile():
 				pass
 			else:
 				stream = request.files[key]
-				path = os.path.join(cfg.data_path,key)
-
+				
+				# make sure that directory exists
+				targetdir = os.path.join(cfg.data_path,user)
+				try:
+					os.makedirs(targetdir)
+				except os.error:
+					print "warning, oserror"
+				
+				path = os.path.join(targetdir,key)
+				print "path:",path
 				with open(path, "wb") as ofile:
 					data = stream.read(1024)
 					while len(data)>0:
@@ -43,9 +53,11 @@ def uploadfile():
 				# remove files that turn out to be non-ogg
 				if "audio/ogg" != magic.from_file(path, mime=True):
 					os.remove(path)
-		return {'status':'UPLOAD_OK'}
+				else:
+					send_post(cfg, '/api/music', {'username':user, 'action':'ADD', 'path':path, 'title':key})
+		return 'UPLOAD_OK'
 	else:
-		return {'status':'UPLOAD_FAIL'}
+		return 'UPLOAD_FAIL'
 
 
 if __name__ == "__main__":
