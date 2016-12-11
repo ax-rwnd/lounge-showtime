@@ -1,0 +1,13 @@
+class Config:
+	host = None
+	port = None
+	data_path = None
+	api_url = None
+	api_key = None
+
+	def __init__ (self):
+		self.host = "0.0.0.0"
+		self.port = 8081
+		self.data_path = 'userdata'
+		self.api_url = 'https://my-api.biz'
+		self.api_key = ''
