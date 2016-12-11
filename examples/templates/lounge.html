@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<title>Lounge</title>
+		<script> var counter = 0;</script>
+	</head>
+	<body>
+	<audio id="audio" controls="controls">
+	    <source id="oggSource" src="" type="audio/ogg"></source>
+	    <source id="mp3Source" type="audio/mp3"></source>
+	    Your browser does not support the audio format.
+	</audio>
+
+	<ul>
+	    <li>Sunday May 27, 2012
+		<ul>
+		    <li id="song1" data-value="{{source}}"><button onclick="updateSource()">Item1</button></li>
+		    <li>Item2</li>
+		    <li>Item3</li>
+		</ul>
+	    </li>
+	</ul>
+
+
+	<script>
+	  function updateSource() { 
+		var audio = document.getElementById('audio');
+
+		var source = document.getElementById('oggSource');
+		source.src = "{{source}}";
+
+		audio.load(); //call this to just preload the audio without playing
+		audio.play(); //call this to play the song right away
+	    }
+
+	function poll(fn, callback, errback, timeout, interval) {
+		var endTime = Number(new Date()) + (timeout || 20);
+		interval = interval || 10;
+
+		(function p() {
+			// If the condition is met, we're done! 
+			if(fn()) {
+			callback();
+		}
+		// If the condition isn't met but the timeout hasn't elapsed, go again
+		else if (Number(new Date()) < endTime) {
+			setTimeout(p, interval);
+		}
+		// Didn't match and too much time, reject!
+		else {
+			errback(new Error('timed out for ' + fn + ': ' + arguments));
+		}
+		})();
+	}
+
+	// Usage:  ensure element is visible
+	poll(
+		function() {
+			console.log(counter);
+			return counter;
+		//return document.getElementById('lightbox').offsetWidth > 0;
+		},
+		function() {console.log("done");},
+		function() {console.log("polling error");}
+	);
+	</script>
+	</body>
+</html>
+
+
+
+	<!-- <body>
+		<audio controls>
+		<source src="{{source}}" type="audio/ogg">
+		Your browser does not support the audio element.
+		</audio> 
+	</body> -->
