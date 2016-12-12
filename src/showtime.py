@@ -7,10 +7,10 @@ from seated import send_post
 app =Flask(__name__)
 cfg = Config()
 
-@app.route("/ogg/<string:song>")
+@app.route("/ogg/<path:song>")
 def streamogg(song):
 	def generate():
-		path = os.path.join(cfg.data_path,song)
+		path = os.path.join(song)
 		with open(path, "rb") as fogg:
 			data = fogg.read(1024)
 			while data:
@@ -26,6 +26,13 @@ def uploadfile():
 	# grab auth info
 	user = request.files['username'].stream.read(32)
 	session = request.files['session'].stream.read(60)
+
+	playlist_id = None
+	if ('playlist_id' in request.files):
+		playlist_id = request.files['playlist_id'].stream.read(16)
+	else:
+		return 'UPLOAD_FAILED'
+
 
 	status = send_post(cfg, '/api/auth', {'username':user,'session':session})
 	if status['status'] == u'AUTH_OK':
@@ -43,7 +50,6 @@ def uploadfile():
 					print "warning, oserror"
 				
 				path = os.path.join(targetdir,key)
-				print "path:",path
 				with open(path, "wb") as ofile:
 					data = stream.read(1024)
 					while len(data)>0:
@@ -54,7 +60,8 @@ def uploadfile():
 				if "audio/ogg" != magic.from_file(path, mime=True):
 					os.remove(path)
 				else:
-					send_post(cfg, '/api/music', {'username':user, 'action':'ADD', 'path':path, 'title':key})
+					status = send_post(cfg, '/api/music/0', {'username':user, 'session':session, 'playlist_id':playlist_id, 'action':'ADD', 'path':path, 'title':key})
+					print status
 		return 'UPLOAD_OK'
 	else:
 		return 'UPLOAD_FAIL'
