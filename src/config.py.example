@@ -1,9 +1,11 @@
+# Edit and copy this file to config.py before launching!
+
 class Config:
-	host = None
-	port = None
-	data_path = None
-	api_url = None
-	api_key = None
+	host = None		# The host address to listen to
+	port = None		# The port to listen to
+	data_path = None	# Path to where data should be stored
+	api_url = None		# URL to api root
+	api_key = None		# API key for the service
 
 	def __init__ (self):
 		self.host = "0.0.0.0"
