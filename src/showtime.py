@@ -37,7 +37,7 @@ def uploadfile():
 	status = send_post(cfg, '/api/auth', {'username':user,'session':session})
 	if status['status'] == u'AUTH_OK':
 		for key in  request.files.iterkeys():
-			if key == 'username' or key == 'session':
+			if key == 'username' or key == 'session' or key == 'playlist_id':
 				pass
 			else:
 				stream = request.files[key]
@@ -59,9 +59,9 @@ def uploadfile():
 				# remove files that turn out to be non-ogg
 				if "audio/ogg" != magic.from_file(path, mime=True):
 					os.remove(path)
+					return 'UPLOAD_FAIL'
 				else:
 					status = send_post(cfg, '/api/music/0', {'username':user, 'session':session, 'playlist_id':playlist_id, 'action':'ADD', 'path':path, 'title':key})
-					print status
 		return 'UPLOAD_OK'
 	else:
 		return 'UPLOAD_FAIL'
